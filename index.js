@@ -18,15 +18,23 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+app.get("/:date", function (req, res) {
+  const date = (req.params.date)
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  let responseDate, unixDate
+
+  if(date.includes('-')) {
+    responseDate = new Date(date)
+    unixDate = responseDate.getTime() / 1000
+  } else {
+    unixDate = parseFloat(date)
+    responseDate = new Date(unixDate * 1000)
+  }
+
+  res.json({ 'unix': unixDate, 'utc': responseDate.toUTCString() })
 });
 
-
-
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
+var listener = app.listen(/*process.env.PORT*/ 6000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
