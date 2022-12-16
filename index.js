@@ -20,14 +20,20 @@ app.get("/", function (req, res) {
 
 app.get("/:date", function (req, res) {
   const date = (req.params.date)
+  const dateRegex = /^\d{4}[./-]\d{2}[./-]\d{2}$/
+  const unixRegex = /\d{10}/
 
   let responseDate, unixDate
 
   if(date.includes('-')) {
+    if (!dateRegex.test(date)) res.json({ 'error': 'Invalid Date' })
+
     responseDate = new Date(date)
     unixDate = responseDate.getTime() / 1000
   } else {
-    unixDate = parseFloat(date)
+    if (!unixRegex.test(date)) res.json({ 'error': 'Invalid Date' })
+
+    unixDate = parseFloat(date.slice(0, 10))
     responseDate = new Date(unixDate * 1000)
   }
 
