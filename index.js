@@ -15,7 +15,10 @@ app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+  const date = new Date()
+
+  const unixDate = date.getTime() / 1000
+  res.json({ 'unix': unixDate, 'utc': date.toUTCString() })
 });
 
 app.get("/:date", function (req, res) {
