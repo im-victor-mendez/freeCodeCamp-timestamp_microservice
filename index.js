@@ -13,34 +13,56 @@ app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 20
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
+  res.sendFile(__dirname + '/views/index.html');
+});
+
+// http://expressjs.com/en/starter/basic-routing.html
+app.get("/api", function (req, res) {
   const date = new Date()
 
-  const unixDate = date.getTime() / 1000
+  const unixDate = date.valueOf()
   res.json({ 'unix': unixDate, 'utc': date.toUTCString() })
 });
 
-app.get("/:date", function (req, res) {
-  const date = (req.params.date)
+app.get("/api/:date", function (req, res) {
+  let date = req.params.date, responseDate, unix
+  console.log(date, new Date(date))
+  
+  /* Regexs */
   const dateRegex = /^\d{4}[./-]\d{2}[./-]\d{2}$/
-  const unixRegex = /\d{10}/
-
-  let responseDate, unixDate
-
-  if(date.includes('-')) {
-    if (!dateRegex.test(date)) res.json({ 'error': 'Invalid Date' })
-
+  const unixRegex = /^(\d{3,13})/
+  
+  /* Common Date */
+  if (dateRegex.test(date)) {
+    console.log('Date regex')
+    
     responseDate = new Date(date)
-    unixDate = responseDate.getTime() / 1000
-  } else {
-    if (!unixRegex.test(date)) res.json({ 'error': 'Invalid Date' })
-
-    unixDate = parseFloat(date.slice(0, 10))
-    responseDate = new Date(unixDate * 1000)
+    
+    unix = responseDate.valueOf()
+    responseDate = responseDate.toUTCString()
+  } else
+  
+  /* Unix Date */
+  if (unixRegex.test(date)) {
+    console.log('Unix Regex')
+    
+    unix = parseFloat(date)
+    responseDate = new Date(parseFloat(date)).toUTCString()
+  } else
+  
+  /* String Date */
+  {
+    console.log('String Date')
+    
+    unix = new Date(date).valueOf()
+    responseDate = new Date(date).toUTCString()
   }
-
-  res.json({ 'unix': unixDate, 'utc': responseDate.toUTCString() })
+  
+  //responseDate = new Date(date).toUTCString()
+  if (responseDate == "Invalid Date") res.json({ 'error': 'Invalid Date'})
+  
+  res.json({ 'unix': unix, 'utc': responseDate })
 });
 
 // listen for requests :)
